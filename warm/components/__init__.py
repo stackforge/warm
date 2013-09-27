@@ -23,7 +23,7 @@ class Base(object):
         self._ref = utils.find_resource(service, id_or_name)
         return self
 
-    def wait_for_ready(self):
+    def wait_for_ready(self, field="status", success=("available", "active")):
         if isinstance(self, Image):
             service = self._agent.client.compute.images
         elif isinstance(self, Server):
@@ -32,10 +32,12 @@ class Base(object):
             service = self._agent.client.compute.flavors
         elif isinstance(self, Volume):
             service = self._agent.client.volume.volumes
-            utils.wait_for_status(service.get, 
-                                  self.id, 
-                                  sleep_time=1, 
-                                  success_status=("available", "active"))
+
+        utils.wait_for_status(service.get, 
+                              self.id, 
+                              sleep_time=1, 
+                              success_status=success,
+                              status_field=field)
         
     def _Execute(self, options):
         raise NotImplemented("This method need to be implemented.")
@@ -103,10 +105,10 @@ class Volume(Base):
 class SecurityGroup(Base):
     def _Execute(self, options):
         """Handles security groups operations."""
-        whitlist = dict(
+        whitelist = dict(
             name=options["name"],
-            description=options.get("description", ""))
-        return self._agent.client.compute.security_groups.create(**whitlist)
+            description=options.get("description", "<empty>"))
+        return self._agent.client.compute.security_groups.create(**whitelist)
     
     def _PostExecute(self, options):
         if "rules" in options:
@@ -154,7 +156,7 @@ class Server(Base):
 
     def _PostExecute(self, options):
         if "volumes" in options:
-            #self.wait_for_ready()
+            self.wait_for_ready()
             for volume_opt in options["volumes"]:
                 self.Mount(**volume_opt)
                 
