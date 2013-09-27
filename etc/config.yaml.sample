@@ -1,0 +1,15 @@
+username: demo
+password: ok
+project_name: demo
+auth_url: http://10.0.2.15:5000/v2.0
+region_name:
+path:
+
+key:
+- name: demo
+  path: .
+
+server:
+- name: demo
+  flavor: 2
+  image: cirros-0.3.1-x86_64-uec
