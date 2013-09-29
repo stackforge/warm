@@ -38,9 +38,18 @@ class Base(object):
                               sleep_time=1, 
                               success_status=success,
                               status_field=field)
+
+    def delete(self):
+        if not self._ref:
+            raise Exception("This component is not initialize yet.")
+        return self._Delete()
+
         
     def _Execute(self, options):
-        raise NotImplemented("This method need to be implemented.")
+        raise NotImplemented("This method needs to be implemented.")
+
+    def _Delete(self):
+        return self._ref.delete()
     
     def _PostExecute(self, options):
         pass
@@ -101,6 +110,9 @@ class Volume(Base):
             size=options["size"],
             display_name=options.get("name", ""))
         return self._agent.client.volume.volumes.create(**whitelist)
+
+    def _Name(self):
+        return self._ref.display_name
 
 class SecurityGroup(Base):
     def _Execute(self, options):
