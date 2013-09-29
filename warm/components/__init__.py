@@ -1,4 +1,5 @@
 from openstackclient.common import utils
+from neutronclient.neutron import v2_0 as neutronV20
 
 class Base(object):
     """Base class for a component."""
@@ -7,6 +8,7 @@ class Base(object):
         self._ref = ref
     
     def find(self, id_or_name):
+        service = None
         if isinstance(self, Image):
             service = self._agent.client.compute.images
         elif isinstance(self, Server):
@@ -19,8 +21,17 @@ class Base(object):
             service = self._agent.client.compute.security_groups
         elif isinstance(self, Network):
             service = self._agent.client.compute.networks
-
-        self._ref = utils.find_resource(service, id_or_name)
+        elif isinstance(self, SubNet):
+            sid = neutronV20.find_resourceid_by_name_or_id(
+                self._agent.clientneutron, "subnet", id_or_name)
+            self._ref = self._agent.clientneutron.show_subnet(sid)
+        elif isinstance(self, Router):
+            rid = neutronV20.find_resourceid_by_name_or_id(
+                self._agent.clientneutron, "router", id_or_name)
+            self._ref = self._agent.clientneutron.show_router(rid)
+            
+        if service:
+            self._ref = utils.find_resource(service, id_or_name)
         return self
 
     def wait_for_ready(self, field="status", success=("available", "active")):
@@ -167,8 +178,8 @@ class Server(Base):
         return self._agent.client.compute.servers.create(**whitelist)
 
     def _PostExecute(self, options):
+        self.wait_for_ready()
         if "volumes" in options:
-            self.wait_for_ready()
             for volume_opt in options["volumes"]:
                 self.Mount(**volume_opt)
                 
@@ -184,21 +195,65 @@ class Server(Base):
 class Network(Base):
     def _Execute(self, options):
         whitelist = dict(
-            label=options["name"], 
-            admin_state_up=options.get("admin_state_up", True))
-        return self._agent.client.compute.networks.create(**whitelist)
+            name=options["name"], 
+            admin_state_up=options.get("admin_state_up", True),
+            )
+        body = {"network": whitelist}
+        #TODO(sahid): Needs to use client.
+        return self._agent.clientneutron.create_network(body)
+
+    def _PostExecute(self, options):
+        if "subnets" in options:
+            for cfg in options["subnets"]:
+                self.AttachSubNet(cfg)
+
+    def AttachSubNet(self, options):
+        options["network"] = self.id
+        SubNet(self._agent)(**options)
+
+    def _Id(self):
+        if isinstance(self._ref, dict):
+            return self._ref["network"]["id"]
+        return self._ref.id
+
+    def _Name(self):
+        if isinstance(self._ref, dict):
+            return self._ref["network"]["name"]
+        return self._ref.name
+
+    def _Delete(self):
+        if isinstance(self._ref, dict):
+            return self._agent.clientneutron.delete_network(self.id)
+        return self.delete()
 
 
 class SubNet(Base):
     def _Execute(self, options):
-        network = Network(self._agent).find(options["name"])
-        whitlist = dict(
+        network = Network(self._agent).find(options["network"])
+        whitelist = dict(
             network_id=network.id,
             name=options.get("name"), 
             cidr=options.get("cidr"), 
             ip_version=options.get("ip_version"), 
             dns_nameservers=options.get("dns_nameservers", []))
-        return self.agent.client.compute.networks.create_subnet(**whitlist)
+        body = {"subnet": whitelist}
+        #TODO(sahid): Needs to use client.
+        return self._agent.clientneutron.create_subnet(body)
+
+    def _Id(self):
+        if isinstance(self._ref, dict):
+            return self._ref["subnet"]["id"]
+        return self._ref.id
+
+    def _Name(self):
+        if isinstance(self._ref, dict):
+            return self._ref["subnet"]["name"]
+        return self._ref.name
+
+    def _Delete(self):
+        if isinstance(self._ref, dict):
+            return self._agent.clientneutron.delete_subnet(self.id)
+        self._ref.delete()
 
 
 class Router(Base):
@@ -208,27 +263,99 @@ class Router(Base):
             admin_state_up=options.get("admin_state_up", True))
         return self._agent.clientneutron.create_router({"router": whitelist})
 
-    def PostExecute(self, options):
+    def _PostExecute(self, options):
         if "gateways" in options:
             for gateway_opt in options["gateways"]:
-                self._Gateway(**gateway_opt)
+                self.AttachGateway(gateway_opt)
         if "interfaces" in options:
             for interface_opt in options["interfaces"]:
-                self._Interface(**interface_opt)
+                self.AttachInterface(interface_opt)
 
+    def AttachInterface(self, options):
+        options["router"] = self.id
+        RouterInterface(self._agent)(**options)
 
-class RouterGateway(Base):
-    def _Execute(self, options):
-        router = Router(self._agent).find(options["name"])
-        whitelist = dict(router=router.id,
-                         admin_state_up=options.get("admin_state_up", True))
-        return self._agent.clientneutron.add_gateway_router(**whitelist)
+    def AttachGateway(self, options):
+        options["router"] = self.id
+        RouterGateway(self._agent)(**options)
+
+    def _Id(self):
+        if isinstance(self._ref, dict):
+            return self._ref["router"]["id"]
+        return self._ref.id
+
+    def _Name(self):
+        if isinstance(self._ref, dict):
+            return self._ref["router"]["name"]
+        return self._ref.name
+
+    def _Delete(self):
+        if isinstance(self._ref, dict):
+            for name, interfaces in self._agent.clientneutron.list_ports().items():
+                for interface in interfaces:
+                    if interface["device_id"] == self.id:
+                        RouterInterface(self._agent, interface).delete()
+            return self._agent.clientneutron.delete_router(self.id)
+        
+        self._ref.delete()
 
 
 class RouterInterface(Base):
     def _Execute(self, options):
-        router = Router(self._agent).find(options["name"])
-        whitlist = dict(router=router.id,
-                        admin_state_up=options.get("admin_state_up", True))
-        return # needs rpc
+        router = Router(self._agent).find(options["router"])
+        subnet = SubNet(self._agent).find(options["subnet"])
+        whitelist = dict(
+            name = options.get("name"),
+            subnet_id=subnet.id,
+            )
+        return self._agent.clientneutron.add_interface_router(
+            router.id, whitelist)
+
+    def _Id(self):
+        if isinstance(self._ref, dict):
+            return self._ref["id"]
+        return self._ref.id
+
+    def _Name(self):
+        if isinstance(self._ref, dict):
+            return self._ref["name"]
+        return self._ref.name
+
+    def _Delete(self):
+        if isinstance(self._ref, dict):
+            return self._agent.clientneutron.remove_interface_router(
+                self._ref["device_id"], 
+                {"subnet_id":self._ref["fixed_ips"][0]['subnet_id']})
+        self._ref.delete()
+
+
+class RouterGateway(Base):
+    def _Execute(self, options):
+        router = Router(self._agent).find(options["router"])
+        network = Network(self._agent).find(options["network"])
+        whitelist = dict(
+            name = options.get("name"),
+            network_id=network.id,
+            )
+        return self._agent.clientneutron.add_gateway_router(
+            router.id, whitelist)
+
+    def _Id(self):
+        if isinstance(self._ref, dict):
+            return self._ref["id"]
+        return self._ref.id
+
+    def _Name(self):
+        if isinstance(self._ref, dict):
+            return self._ref["name"]
+        return self._ref.name
+
+    def _Delete(self):
+        if isinstance(self._ref, dict):
+            return self._agent.clientneutron.remove_gateway_router(
+                self._ref["device_id"], 
+                {"network_id":self._ref["fixed_ips"][0]['subnet_id']})
+        self._ref.delete()
+
+
 
