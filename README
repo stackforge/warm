@@ -1,4 +1,5 @@
-Warm - A project to create full OpenStack running environment
+Warm - To deploy a simple OpenStack environment from template
 =============================================================
 
-Not ready to use.
+  This project doesn't claim to be a solution to replace heat, it just try
+  to expose a simple way to deploy small environement from template.

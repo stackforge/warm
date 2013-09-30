@@ -1,4 +1,5 @@
-
+"""The main script of the project.
+"""
 import logging
 import optparse
 import os

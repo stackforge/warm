@@ -139,13 +139,13 @@ class SecurityGroup(Base):
                 self.Rule(**rule_opt)
 
     def Rule(self, **options):
-        options["name"] = self.id
+        options["group"] = self.id
         SecurityGroupRule(self._agent)(**options)
         
 
 class SecurityGroupRule(Base):
     def _Execute(self, options):
-        secgrp = SecurityGroup(self._agent).find(options["name"])
+        secgrp = SecurityGroup(self._agent).find(options["group"])
         whitelist = dict(
             parent_group_id=secgrp.id,
             ip_protocol=options.get("ip_protocol"), 

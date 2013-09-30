@@ -1,3 +1,7 @@
+"""Some unit tests, actually these tests are not really strong
+it was for me a solution to conduct my development. So don't be affraid :-)
+"""
+
 import datetime
 import os
 import random

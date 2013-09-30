@@ -1,15 +1,86 @@
-username: demo
-password: ok
-project_name: demo
-auth_url: http://10.0.2.15:5000/v2.0
-region_name:
-path:
+# A template use the YAML syntaxe.
 
-key:
-- name: demo
-  path: .
+###############################################################################
+# Authentification
+# The program can read environement variables OS_*
+###############################################################################
+#username: demo
+#password: ok
+#project_name: demo
+#auth_url: http://10.0.2.15:5000/v2.0
+#region_name:
+#path:
 
+###############################################################################
+# Key
+###############################################################################
+#key:
+#- name: demo
+#  path: .
+
+###############################################################################
+# Volume
+###############################################################################
+#volume:
+#- name: vol01
+#  size: 1
+
+###############################################################################
+# Security Groups & Rules
+###############################################################################
+#securitygroup:
+#- name: sec01
+#  description: my security group
+#  rules:
+#    - ip_protocol: tcp
+#      from_port: 22
+#      to_port: 22
+#      cidr: 0.0.0.0/23
+#
+#securitygrouprule:
+#- group: sec01
+#  ip_protocol: tcp
+#  from_port: 22
+#  to_port: 22
+#  cidr: 0.0.0.0/23
+
+###############################################################################
+# Server
+###############################################################################
 server:
 - name: demo
-  flavor: 2
+  flavor: 1
   image: cirros-0.3.1-x86_64-uec
+#  volumes:
+#    - name: vol01
+#      device: /dev/sdh
+#  securitygroups: [demo, ]
+
+###############################################################################
+# Network & SubNet
+###############################################################################
+#network:
+#- name: net01
+#  subnets:
+#    - cidr: 10.123.2.0/24
+#      ip_version: 4
+#
+#subnet:
+#- network: net01
+#  name: sub01
+#  cidr: 10.123.2.0/24
+#  ip_version: 4
+
+###############################################################################
+# Router
+###############################################################################
+#router:
+#- name: router01
+#  interfaces:
+#    - name: interface01
+#      subnet: sub01
+#  gateways:
+#    - name: gate01
+#      network: net01
+
+
