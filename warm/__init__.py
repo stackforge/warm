@@ -28,7 +28,7 @@ from neutronclient.neutron import client as neutron #TODO(sahid): Needs to remov
 
 from warm import components
 
-DEFAULT_LOGFILE = "/dev/stdout"
+DEFAULT_LOGFILE = "/dev/null"
 DEFAULT_LOGLEVEL = logging.DEBUG
 DEFAULT_COMPUTE_API_VERSION = '2'
 DEFAULT_IDENTITY_API_VERSION = '2.0'
@@ -97,17 +97,19 @@ class Agent(object):
 
 def main():   
     parser = optparse.OptionParser(usage=USAGE)
-    parser.add_option("-l", "--logfile", 
-                      dest="logfile",
-                      help="Use a custom log file.", 
-                      metavar="FILE",
-                      default=DEFAULT_LOGFILE)
+    parser.add_option("-v", "--verbose", 
+                      dest="verbose",
+                      action="store_true",
+                      help="Be more verbose.",
+                      default=False)
     
     (options, args) = parser.parse_args()
 
-    logfile = getattr(options, "logfile")
-
-    logging.basicConfig(filename=logfile, level=DEFAULT_LOGLEVEL)
+    verbose = getattr(options, "verbose")
+    out = DEFAULT_LOGFILE
+    if verbose:
+        out = "/dev/stdout"
+    logging.basicConfig(filename=out, level=DEFAULT_LOGLEVEL)
 
 
     if len(sys.argv) < 2:
