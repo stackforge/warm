@@ -43,9 +43,7 @@ setuptools.setup(
         'Environment :: OpenStack',
         ],
     url='https://github.com/sahid/warm.git',
-    packages=setuptools.find_packages('warm'),
-    include_package_data=False,
-    package_dir={'': 'warm'},
+    packages=["warm", "warm.components"],
     data_files=[('templates', ['templates/config.yaml.sample'])],
     install_requires=[
         'python-openstackclient',
