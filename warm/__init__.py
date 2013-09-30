@@ -129,12 +129,12 @@ def main():
 
 CLASS_MAPPING=[
     ("key", "Key"),
-    ("securitygroup", "SecurityGroup"),
-    ("securitygrouprule", "SecurityGroupRule"),
     ("volume", "Volume"),
     ("network", "Network"),
     ("subnet", "SubNet"),
     ("router", "Router"),
+    ("securitygroup", "SecurityGroup"),
+    ("securitygrouprule", "SecurityGroupRule"),
     ("server", "Server"),
 ]
 

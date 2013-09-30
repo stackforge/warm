@@ -167,13 +167,19 @@ class SecurityGroup(Base):
 
 class SecurityGroupRule(Base):
     def _Execute(self, options):
-        secgrp = SecurityGroup(self._agent).find(options["group"])
+        parent = SecurityGroup(self._agent).find(options["group"])
+        group_id=None
+        if "secgroup" in options:
+            group = SecurityGroup(self._agent).find(options["secgroup"])
+            if group:
+                group_id = group.id
         whitelist = dict(
-            parent_group_id=secgrp.id,
+            parent_group_id=parent.id,
             ip_protocol=options.get("ip_protocol"), 
             from_port=options.get("from_port"), 
             to_port=options.get("to_port"), 
-            cidr=options.get("cidr"))
+            cidr=options.get("cidr"),
+            group_id=group_id)
         return self._agent.client.compute.security_group_rules.create(**whitelist)
 
 class Server(Base):
@@ -209,7 +215,8 @@ class Server(Base):
             flavor=flavor.id,
             security_groups=secgrps,
             nics=networks,
-            userdata=userdata)
+            userdata=userdata,
+            key_name=options.get("key"))
 
         return self._agent.client.compute.servers.create(**whitelist)
 
