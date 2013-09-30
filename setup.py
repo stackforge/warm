@@ -46,6 +46,7 @@ setuptools.setup(
     packages=["warm", "warm.components"],
     data_files=[('templates', ['templates/config.yaml.sample'])],
     install_requires=[
+        'pyyaml',
         'python-openstackclient',
         'python-neutronclient',
         ],
