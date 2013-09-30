@@ -1,5 +1,18 @@
 Warm - To deploy a simple OpenStack environment from template
 =============================================================
 
-  This project doesn't claim to be a solution to replace heat, it just try
-  to expose a simple way to deploy small environement from template.
+  This project doesn't claim to be a solution to replace heat, 
+it just try to expose a simple way to deploy small 
+environement from template.
+
+How to use it:
+==============
+  $ warm /path/templates/my-tpl.yaml
+
+To get more information about a template syntaxe, see condig.yaml.sample.
+
+Notes:
+======
+  You may need to install packages:
+    build-essential
+    python-dev
