@@ -23,6 +23,7 @@ import datetime
 import os
 import random
 import testtools
+import time
 
 
 import warm
@@ -47,14 +48,14 @@ class TestComponents(testtools.TestCase):
             os.path.exists("%(path)s/%(name)s.pem" % cfg))
         key.delete()
 
-    def test_volume(self):
+    def _test_volume(self):
         cfg = {"name": rndname("vol"),
                "size": 1}
         vol = components.Volume(self.agent)(**cfg)
         vol.wait_for_ready()
         vol.delete()
 
-    def test_securitygroup(self):
+    def _test_securitygroup(self):
         cfg = {"name": rndname("secgroup"),
                "rules": [
                 {"ip_protocol":"tcp",
@@ -64,7 +65,7 @@ class TestComponents(testtools.TestCase):
         sec = components.SecurityGroup(self.agent)(**cfg)
         sec.delete()
 
-    def test_server(self):
+    def _test_server(self):
         cfg = {"name": rndname("srv"),
                "flavor": 1,
                "image": "cirros-0.3.1-x86_64-uec",}
@@ -72,7 +73,7 @@ class TestComponents(testtools.TestCase):
         srv.wait_for_ready()
         srv.delete()
 
-    def test_server_volume(self):
+    def _test_server_volume(self):
         cfg = {"name": rndname("vol"),
                "size": 1}
         vol = components.Volume(self.agent)(**cfg)
@@ -90,7 +91,31 @@ class TestComponents(testtools.TestCase):
         vol.wait_for_ready()
         vol.delete()
 
-    def test_network(self):
+    def test_server_network(self):
+        cfg = {"name": rndname("net"),
+               "subnets": [
+                {"name": rndname("subnet"),
+                 "cidr": "10.123.2.0/24",
+                 "ip_version": 4},]}
+        net = components.Network(self.agent)(**cfg)
+
+
+        cfg = {"name": rndname("srv"),
+               "flavor": 1,
+               "image": "cirros-0.3.1-x86_64-uec",
+               "networks": [{
+                    "name": net.id,
+                    "fixed_ip": "10.123.2.10",
+                    }]
+               }
+        srv = components.Server(self.agent)(**cfg)
+
+        srv.delete()
+        
+        time.sleep(5) #TODO(sahid): Bug, not able to remove an used network
+        net.delete()
+        
+    def _test_network(self):
         cfg = {"name": rndname("net"),
                "subnets": [
                 {"name": rndname("subnet"),
@@ -99,7 +124,7 @@ class TestComponents(testtools.TestCase):
         net = components.Network(self.agent)(**cfg)
         net.delete()
 
-    def test_router(self):
+    def _test_router(self):
         cfg = {"name": rndname("net")}
         net = components.Network(self.agent)(**cfg)
         

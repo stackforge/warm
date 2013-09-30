@@ -183,16 +183,26 @@ class Server(Base):
         for name in options.get("securitygroups", []):
             secgrp = SecurityGroup(self._agent).find(name)
             secgrps.append(secgrp.id)
+
+        networks = []
+        for obj in options.get("networks", []):
+            net = Network(self._agent).find(obj["name"])
+            networks.append({
+                    "net-id": net.id,
+                    "v4-fixed-ip": obj.get("fixed_ip"),
+                    "port-id": obj.get("port"),
+                    })
             
         whitelist = dict(
             name=options.get("name"),
             image=image.id,
             flavor=flavor.id,
-            security_groups=secgrps
-            )
+            security_groups=secgrps,
+            nics=networks,
             #userdata=self._UserData(options.get("userdata")),
-            #nics=self._Nics(options.get("networks", [])),
-            #   )
+            )
+        
+        
                 
         return self._agent.client.compute.servers.create(**whitelist)
 
