@@ -42,7 +42,7 @@ OS_PASSWORD = os.getenv("OS_PASSWORD")
 OS_TENANT_NAME = os.getenv("OS_TENANT_NAME")
 OS_AUTH_URL = os.getenv("OS_AUTH_URL")
 
-USAGE = "usage: %prog [options] <template>"
+USAGE = "usage: %prog <template> [options]"
 
 class Agent(object):
     def __init__(self, **options):
