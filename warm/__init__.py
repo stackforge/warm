@@ -1,17 +1,34 @@
-"""The main script of the project.
-"""
+#   Copyright 2013 Cloudwatt 
+#   
+#   Author: Sahid Orentino Ferdjaoui <sahid.ferdjaoui@cloudwatt.com>
+#
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
+#
+
+"""The main script of the project."""
+
 import logging
 import optparse
 import os
 import yaml
+import sys
 
 from openstackclient.common import clientmanager
 from neutronclient.neutron import client as neutron #TODO(sahid): Needs to remove.
 
 from warm import components
 
-DEFAULT_CFGFILE = "config.yaml"
-DEFAULT_LOGFILE = "/dev/stdout"#"warm.log"
+DEFAULT_LOGFILE = "/dev/stdout"
 DEFAULT_LOGLEVEL = logging.DEBUG
 DEFAULT_COMPUTE_API_VERSION = '2'
 DEFAULT_IDENTITY_API_VERSION = '2.0'
@@ -19,12 +36,13 @@ DEFAULT_IMAGE_API_VERSION = '2'
 DEFAULT_OBJECT_API_VERSION = '1'
 DEFAULT_VOLUME_API_VERSION = '1'
 DEFAULT_DOMAIN = 'default'
-DEFAULT_KEY_NAME = 'my'
 
 OS_USERNAME = os.getenv("OS_USERNAME")
 OS_PASSWORD = os.getenv("OS_PASSWORD")
 OS_TENANT_NAME = os.getenv("OS_TENANT_NAME")
 OS_AUTH_URL = os.getenv("OS_AUTH_URL")
+
+USAGE = "usage: %prog [options] <template>"
 
 class Agent(object):
     def __init__(self, **options):
@@ -77,27 +95,26 @@ class Agent(object):
         f.write(key.private_key)
         f.close
 
-def main():    
-    parser = optparse.OptionParser()
-    parser.add_option("-c", "--config", 
-                      dest="config",
-                      help="Uses a custom config file.", 
-                      metavar="FILE",
-                      default=DEFAULT_CFGFILE)
+def main():   
+    parser = optparse.OptionParser(usage=USAGE)
     parser.add_option("-l", "--logfile", 
                       dest="logfile",
-                      help="Uses a custom log file (ex: stdout).", 
+                      help="Use a custom log file.", 
                       metavar="FILE",
                       default=DEFAULT_LOGFILE)
     
     (options, args) = parser.parse_args()
 
-    cfgfile = getattr(options, "config")
     logfile = getattr(options, "logfile")
 
     logging.basicConfig(filename=logfile, level=DEFAULT_LOGLEVEL)
+
+
+    if len(sys.argv) < 2:
+        parser.print_help()
+        exit()
     
-    stream = file(cfgfile)
+    stream = file(sys.argv[1])
     config = yaml.load(stream)
 
     agent = Agent(**config)
