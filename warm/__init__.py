@@ -132,10 +132,10 @@ CLASS_MAPPING=[
     ("securitygroup", "SecurityGroup"),
     ("securitygrouprule", "SecurityGroupRule"),
     ("volume", "Volume"),
-    ("server", "Server"),
     ("network", "Network"),
     ("subnet", "SubNet"),
     ("router", "Router"),
+    ("server", "Server"),
 ]
 
 if __name__ == "__main__":
