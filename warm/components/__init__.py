@@ -17,6 +17,9 @@
 
 """Components."""
 
+import os
+import uuid
+
 from openstackclient.common import utils
 from neutronclient.neutron import v2_0 as neutronV20
 
@@ -192,6 +195,13 @@ class Server(Base):
                     "v4-fixed-ip": obj.get("fixed_ip"),
                     "port-id": obj.get("port"),
                     })
+
+        userdata = None
+        if "userdata" in options:
+            tmpname = uuid.uuid1()
+            os.system("/usr/bin/write-mime-multipart --output=/tmp/%s %s " % 
+                      (tmpname, " ".join(options["userdata"])))
+            userdata = open("/tmp/%s" % tmpname)
             
         whitelist = dict(
             name=options.get("name"),
@@ -199,11 +209,8 @@ class Server(Base):
             flavor=flavor.id,
             security_groups=secgrps,
             nics=networks,
-            #userdata=self._UserData(options.get("userdata")),
-            )
-        
-        
-                
+            userdata=userdata)
+
         return self._agent.client.compute.servers.create(**whitelist)
 
     def _PostExecute(self, options):
