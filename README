@@ -7,7 +7,28 @@ environement from template.
 
 How to use it:
 ==============
-  $ warm /path/templates/my-tpl.yaml
+
+  - First to install it use pip (don't forget to check for dependances).
+$ pip install warm
+  
+  - We are considering your env are already configured.
+$ export | grep OS_
+declare -x OS_AUTH_URL="https://identity/v2.0"
+declare -x OS_PASSWORD="*******"
+declare -x OS_TENANT_ID="ea262aa012f244f8af2d1687977aaa81"
+declare -x OS_TENANT_NAME="my-project"
+declare -x OS_USERNAME="sferdjaoui"
+
+  - We are no ready to create our first template.
+$ cat > my-tpl.yaml <<FILE
+server:
+- name: clt
+  flavor: m1.small
+  image: cirros-0.3.1-x86_64-uec # You may have to configure this option.
+FILE
+
+- We can now run it.
+$ warm my-tpl.yaml
 
 To get more information about a template syntaxe, see condig.yaml.sample.
 
@@ -16,3 +37,4 @@ Notes:
   You may need to install packages:
     build-essential
     python-dev
+    python-pip
