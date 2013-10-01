@@ -216,7 +216,9 @@ class Server(Base):
             security_groups=secgrps,
             nics=networks,
             userdata=userdata,
-            key_name=options.get("key"))
+            key_name=options.get("key"),
+            min_count=options.get("min_count"),
+            max_count=options.get("max_count"))
 
         return self._agent.client.compute.servers.create(**whitelist)
 
