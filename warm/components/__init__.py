@@ -223,8 +223,8 @@ class Server(Base):
         return self._agent.client.compute.servers.create(**whitelist)
 
     def _PostExecute(self, options):
-        self.wait_for_ready()
         if "volumes" in options:
+            self.wait_for_ready()
             for volume_opt in options["volumes"]:
                 self.Mount(**volume_opt)
                 
