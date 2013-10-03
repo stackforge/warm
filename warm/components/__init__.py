@@ -216,6 +216,7 @@ class Server(Base):
             security_groups=secgrps,
             nics=networks,
             userdata=userdata,
+            availability_zone=options.get("availability_zone"),
             key_name=options.get("key"),
             min_count=options.get("min_count"),
             max_count=options.get("max_count"))
