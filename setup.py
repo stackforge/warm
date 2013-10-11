@@ -42,7 +42,7 @@ setuptools.setup(
         "Programming Language :: Python",
         "Environment :: OpenStack",
         ],
-    #url="https://github.com/sahid/warm.git",
+    url="https://github.com/sahid/warm.git",
     packages=["warm", "warm.components"],
     install_requires=[
         "requests>=1.1,<1.2.3",
