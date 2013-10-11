@@ -116,10 +116,6 @@ class Key(Base):
         whitelist = dict(
             name=options["name"],
             path=options.get("path", "."))
-        try:
-            self._agent.client.compute.keypairs.delete(whitelist["name"])
-        except:
-            pass
         key = self._agent.client.compute.keypairs.create(whitelist["name"])
         f = open("%(path)s/%(name)s.pem" % whitelist, 'w')
         f.write(key.private_key)
