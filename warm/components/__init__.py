@@ -116,10 +116,12 @@ class Key(Base):
         whitelist = dict(
             name=options["name"],
             path=options.get("path", "."))
-        key = self._agent.client.compute.keypairs.create(whitelist["name"])
-        f = open("%(path)s/%(name)s.pem" % whitelist, 'w')
-        f.write(key.private_key)
-        f.close
+        key = self._agent.client.compute.keypairs.get(whitelist["name"])
+        if not key:
+            key = self._agent.client.compute.keypairs.create(whitelist["name"])
+            f = open("%(path)s/%(name)s.pem" % whitelist, 'w')
+            f.write(key.private_key)
+            f.close
         return key
 
 class Image(Base):
