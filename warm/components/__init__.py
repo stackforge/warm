@@ -22,6 +22,7 @@ import uuid
 
 from openstackclient.common import utils
 from neutronclient.neutron import v2_0 as neutronV20
+from novaclient.exceptions import NotFound
 
 class Base(object):
     """Base class for a component."""
@@ -116,8 +117,9 @@ class Key(Base):
         whitelist = dict(
             name=options["name"],
             path=options.get("path", "."))
-        key = self._agent.client.compute.keypairs.get(whitelist["name"])
-        if not key:
+        try:
+            key = self._agent.client.compute.keypairs.get(whitelist["name"])
+        except NotFound:
             key = self._agent.client.compute.keypairs.create(whitelist["name"])
             f = open("%(path)s/%(name)s.pem" % whitelist, 'w')
             f.write(key.private_key)

@@ -46,6 +46,7 @@ setuptools.setup(
     packages=["warm", "warm.components"],
     install_requires=[
         "requests>=1.1,<1.2.3",
+        "six>=1.4.1",
         "distribute",
         "pyyaml",
         "python-openstackclient",
