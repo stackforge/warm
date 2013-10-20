@@ -38,3 +38,5 @@ Notes:
     build-essential
     python-dev
     python-pip
+		cloud-utils
+		libssl-dev
