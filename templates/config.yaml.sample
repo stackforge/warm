@@ -47,10 +47,10 @@
 ###############################################################################
 # Server
 ###############################################################################
-server:
-- name: demo
-  flavor: 1
-  image: cirros-0.3.1-x86_64-uec
+#server:
+#- name: demo
+#  flavor: 1
+#  image: cirros-0.3.1-x86_64-uec
 #  volumes:
 #    - name: vol01
 #      device: /dev/sdh

@@ -30,7 +30,7 @@ FILE
 - We can now run it.
 $ warm my-tpl.yaml
 
-To get more information about a template syntaxe, see condig.yaml.sample.
+To get more information about a template syntaxe, see config.yaml.sample.
 
 Notes:
 ======
