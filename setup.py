@@ -18,18 +18,16 @@
 import os
 import setuptools
 
-
-def read(*rnames):
-    return open(os.path.join(os.getcwd(), *rnames)).read()
+from warm import __version__
 
 
 setuptools.setup(
     name="warm",
-    version=read("VERSION").strip(),
+    version=__version__,
     author="Sahid Orentino Ferdjaoui (Cloudwatt)",
     author_email="sahid.ferdjaoui@cloudwatt.com",
     description="Deploy a simple OpenStack environment from template",
-    long_description=(read("README")),
+    long_description=(open(os.path.join(os.getcwd(), "README")).read()),
     license="Apache License 2.0",
     keywords=["openstack", "cloudwatt", "deploy", "cloud"],
     classifiers=[

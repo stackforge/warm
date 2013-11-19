@@ -28,6 +28,8 @@ from neutronclient.neutron import client as neutron #TODO(sahid): Needs to remov
 
 from warm import components
 
+__version__ = "0.1.15"
+
 DEFAULT_LOGFILE = "/dev/null"
 DEFAULT_LOGLEVEL = logging.DEBUG
 DEFAULT_COMPUTE_API_VERSION = '2'
@@ -97,10 +99,15 @@ class Agent(object):
 
 def main():   
     parser = optparse.OptionParser(usage=USAGE)
-    parser.add_option("-v", "--verbose", 
+    parser.add_option("-V", "--verbose", 
                       dest="verbose",
                       action="store_true",
                       help="Be more verbose.",
+                      default=False)
+    parser.add_option("-v", "--version", 
+                      dest="version",
+                      action="store_true",
+                      help="Print the current version used.",
                       default=False)
     
     (options, args) = parser.parse_args()
@@ -111,6 +118,9 @@ def main():
         out = "/dev/stdout"
     logging.basicConfig(filename=out, level=DEFAULT_LOGLEVEL)
 
+    if getattr(options, "version"):
+        print __version__
+        exit()
 
     if len(sys.argv) < 2:
         parser.print_help()
