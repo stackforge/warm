@@ -20,9 +20,9 @@
 import os
 import uuid
 
-from openstackclient.common import utils
+from openstackclient.common import utils, exceptions
 from neutronclient.neutron import v2_0 as neutronV20
-from novaclient.exceptions import NotFound
+
 
 class Base(object):
     """Base class for a component."""
@@ -32,6 +32,8 @@ class Base(object):
     
     def find(self, id_or_name):
         service = None
+        if isinstance(self, Key):
+            service = self._agent.client.compute.keypairs
         if isinstance(self, Image):
             service = self._agent.client.compute.images
         elif isinstance(self, Server):
@@ -118,8 +120,8 @@ class Key(Base):
             name=options["name"],
             path=options.get("path", "."))
         try:
-            key = self._agent.client.compute.keypairs.get(whitelist["name"])
-        except NotFound:
+            key = self.find(whitelist["name"])
+        except exceptions.CommandError:
             key = self._agent.client.compute.keypairs.create(whitelist["name"])
             f = open("%(path)s/%(name)s.pem" % whitelist, 'w')
             f.write(key.private_key)
