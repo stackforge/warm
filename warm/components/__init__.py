@@ -106,7 +106,7 @@ class Base(object):
         try:
             if options.get("name"):
                 self._ref = self.find(options.get("name"), ref_only=True)
-        except exceptions.CommandError, NeutronClientException:
+        except (exceptions.CommandError, NeutronClientException):
             pass
         finally:
             if not self._ref:
