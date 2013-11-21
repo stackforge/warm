@@ -22,7 +22,7 @@ import uuid
 
 from openstackclient.common import utils, exceptions
 from neutronclient.neutron import v2_0 as neutronV20
-
+from neutronclient.common import exceptions
 
 class Base(object):
     """Base class for a component."""
@@ -30,8 +30,9 @@ class Base(object):
         self._agent = agent
         self._ref = ref
     
-    def find(self, id_or_name):
+    def find(self, id_or_name, ref_only=False):
         service = None
+        ref = None
         if isinstance(self, Key):
             service = self._agent.client.compute.keypairs
         if isinstance(self, Image):
@@ -49,14 +50,17 @@ class Base(object):
         elif isinstance(self, SubNet):
             sid = neutronV20.find_resourceid_by_name_or_id(
                 self._agent.clientneutron, "subnet", id_or_name)
-            self._ref = self._agent.clientneutron.show_subnet(sid)
+            ref = self._agent.clientneutron.show_subnet(sid)
         elif isinstance(self, Router):
             rid = neutronV20.find_resourceid_by_name_or_id(
                 self._agent.clientneutron, "router", id_or_name)
-            self._ref = self._agent.clientneutron.show_router(rid)
+            ref = self._agent.clientneutron.show_router(rid)
             
         if service:
-            self._ref = utils.find_resource(service, id_or_name)
+            ref = utils.find_resource(service, id_or_name)
+        if ref_only:
+            return ref
+        self._ref = ref
         return self
 
     def wait_for_ready(self, field="status", success=("available", "active")):
@@ -97,7 +101,14 @@ class Base(object):
         return self._ref.name
 
     def __call__(self, **options):
-        self._ref = self._Execute(options)
+        try:
+            if options.get("name"):
+                self._ref = self.find(options.get("name"), ref_only=True)
+        except:
+            pass
+        finally:
+            if not self._ref:
+                self._ref = self._Execute(options)
         self._PostExecute(options)
         return self
     

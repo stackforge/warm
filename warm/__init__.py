@@ -28,7 +28,7 @@ from neutronclient.neutron import client as neutron #TODO(sahid): Needs to remov
 
 from warm import components
 
-__version__ = "0.1.16"
+__version__ = "0.1.17"
 
 DEFAULT_LOGFILE = "/dev/null"
 DEFAULT_LOGLEVEL = logging.DEBUG
