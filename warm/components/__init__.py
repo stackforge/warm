@@ -23,6 +23,7 @@ import uuid
 from neutronclient.neutron import v2_0 as neutronV20
 from neutronclient.common.exceptions import NeutronClientException
 from openstackclient.common import utils, exceptions
+from novaclient.exceptions import BadRequest
 
 
 class Base(object):
@@ -194,7 +195,11 @@ class SecurityGroupRule(Base):
             to_port=options.get("to_port"), 
             cidr=options.get("cidr"),
             group_id=group_id)
-        return self._agent.client.compute.security_group_rules.create(**whitelist)
+        try:
+            return self._agent.client.compute.security_group_rules.create(**whitelist)
+        except BadRequest:
+            pass # BUG(sahid): How to find a rule?
+
 
 class Server(Base):
     """Handle server (instance) operations."""
