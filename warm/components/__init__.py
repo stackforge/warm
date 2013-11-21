@@ -20,9 +20,10 @@
 import os
 import uuid
 
-from openstackclient.common import utils, exceptions
 from neutronclient.neutron import v2_0 as neutronV20
-from neutronclient.common import exceptions
+from neutronclient.common.exceptions import NeutronClientException
+from openstackclient.common import utils, exceptions
+
 
 class Base(object):
     """Base class for a component."""
@@ -104,7 +105,7 @@ class Base(object):
         try:
             if options.get("name"):
                 self._ref = self.find(options.get("name"), ref_only=True)
-        except:
+        except exceptions.CommandError, NeutronClientException:
             pass
         finally:
             if not self._ref:
@@ -367,8 +368,11 @@ class RouterInterface(Base):
             name = options.get("name"),
             subnet_id=subnet.id,
             )
-        return self._agent.clientneutron.add_interface_router(
-            router.id, whitelist)
+        try:
+            return self._agent.clientneutron.add_interface_router(
+                router.id, whitelist)
+        except NeutronClientException:
+            pass # BUG(sahid): Needs to know how to get an interface.
 
     def _Id(self):
         if isinstance(self._ref, dict):
@@ -396,8 +400,12 @@ class RouterGateway(Base):
             name = options.get("name"),
             network_id=network.id,
             )
-        return self._agent.clientneutron.add_gateway_router(
-            router.id, whitelist)
+        try:
+            return self._agent.clientneutron.add_gateway_router(
+                router.id, whitelist)
+        except NeutronClientException:
+            pass # BUG(sahid): Needs to know how to get an interface.
+
 
     def _Id(self):
         if isinstance(self._ref, dict):
