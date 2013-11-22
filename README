@@ -1,9 +1,10 @@
 Warm - To deploy a simple OpenStack environment from template
 =============================================================
 
-  This project doesn't claim to be a solution to replace heat, 
-it just try to expose a simple way to deploy small 
-environement from template.
+  This project doesn't claim to be a solution like heat, it just try to expose 
+Api by the way of templates. It's a simple way to deploy small environments.
+
+Please report me any bugs or features. I will be happy to work on.
 
 How to use it:
 ==============
@@ -19,15 +20,15 @@ declare -x OS_TENANT_ID="ea262aa012f244f8af2d1687977aaa81"
 declare -x OS_TENANT_NAME="my-project"
 declare -x OS_USERNAME="sferdjaoui"
 
-  - We are no ready to create our first template.
-$ cat > my-tpl.yaml <<FILE
+  - We are now ready to create our first template.
+$ cat > my-tpl.yaml <<EOF
 server:
-- name: clt
+- name: srv
   flavor: m1.small
   image: cirros-0.3.1-x86_64-uec # You may have to configure this option.
-FILE
+EOF
 
-- We can now run it.
+- We can now run warm.
 $ warm my-tpl.yaml
 
 To get more information about a template syntaxe, see config.yaml.sample.
@@ -38,5 +39,11 @@ Notes:
     build-essential
     python-dev
     python-pip
-    cloud-utils
+    cloud-utils # write-mime-multipart
     libssl-dev
+
+Roadmap:
+========
+Add write-mime-multipart in the package
+Add floating-ip
+...
