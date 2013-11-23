@@ -18,8 +18,7 @@
 import os
 import setuptools
 
-from warm import __version__
-
+execfile("warm/version.py")
 
 setuptools.setup(
     name="warm",
