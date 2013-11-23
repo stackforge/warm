@@ -1,18 +1,18 @@
-Warm - To deploy a simple OpenStack environment from template
-=============================================================
+Warm - To setup simple OpenStack environments from template
+===========================================================
 
-  This project doesn't claim to be a solution like heat, it just try to expose 
-Api by the way of templates. It's a simple way to deploy small environments.
+  Warm exposes APIs on Yaml files to be reused. I's good tool to setup
+small environement on OpenStack.
 
-Please report me any bugs or features. I will be happy to work on.
+Please report me any bug or feature. I will be happy to work on it.
 
 How to use it:
 ==============
 
-  - First to install it use pip (don't forget to check for dependances).
+  - To install Warm use pip (don't forget to check for dependances).
 $ pip install warm
   
-  - We are considering your env are already configured.
+  - We are considering your env OS_* are already configured.
 $ export | grep OS_
 declare -x OS_AUTH_URL="https://identity/v2.0"
 declare -x OS_PASSWORD="*******"
@@ -25,13 +25,15 @@ $ cat > my-tpl.yaml <<EOF
 server:
 - name: srv
   flavor: m1.small
-  image: cirros-0.3.1-x86_64-uec # You may have to configure this option.
+  image: cirros-0.3.1-x86_64-uec
 EOF
 
 - We can now run warm.
 $ warm my-tpl.yaml
 
-To get more information about a template syntaxe, see config.yaml.sample.
+To get more information about a template syntax, see config.yaml.sample or
+you can check the repositoy https://github.com/sahid/warm-templates to find
+more examples.
 
 Notes:
 ======
@@ -46,4 +48,4 @@ Roadmap:
 ========
 Add write-mime-multipart in the package
 Add floating-ip
-...
+pylint, pep8
