@@ -6,6 +6,9 @@ small environement on OpenStack.
 
 Please report me any bug or feature. I will be happy to work on it.
 
+Note: Warm mixup names and ids, It does not recreate resource 
+already exists with a same name/id.
+
 How to use it:
 ==============
 
