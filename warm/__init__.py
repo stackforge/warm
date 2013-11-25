@@ -27,6 +27,7 @@ from openstackclient.common import clientmanager
 from neutronclient.neutron import client as neutron #TODO(sahid): Needs to remove.
 
 from warm import components
+from warm.version import __version__
 
 DEFAULT_LOGFILE = "/dev/null"
 DEFAULT_LOGLEVEL = logging.DEBUG
