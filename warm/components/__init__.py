@@ -23,7 +23,7 @@ import uuid
 from neutronclient.neutron import v2_0 as neutronV20
 from neutronclient.common.exceptions import NeutronClientException
 from openstackclient.common import utils, exceptions
-from novaclient.exceptions import BadRequest
+from novaclient.exceptions import BadRequest, OverLimit
 
 
 class Base(object):
@@ -197,8 +197,11 @@ class SecurityGroupRule(Base):
             group_id=group_id)
         try:
             return self._agent.client.compute.security_group_rules.create(**whitelist)
-        except BadRequest:
-            pass # BUG(sahid): How to find a rule?
+        except (BadRequest, OverLimit):
+            # BUG(sahid): How to find a rule?,
+            # if the rule already exists, exception OverLimit...
+            pass 
+
 
 
 class Server(Base):
