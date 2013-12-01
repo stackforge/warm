@@ -44,11 +44,9 @@ Notes:
     build-essential
     python-dev
     python-pip
-    cloud-utils # write-mime-multipart
     libssl-dev
 
 Roadmap:
 ========
-Add write-mime-multipart in the package
 Add floating-ip
 pylint, pep8

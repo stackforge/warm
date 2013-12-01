@@ -19,6 +19,7 @@
 
 import os
 import uuid
+import warm.utils
 
 from neutronclient.neutron import v2_0 as neutronV20
 from neutronclient.common.exceptions import NeutronClientException
@@ -226,11 +227,12 @@ class Server(Base):
 
         userdata = None
         if "userdata" in options:
-            tmpname = uuid.uuid1()
-            os.system("/usr/bin/write-mime-multipart --output=/tmp/%s %s " % 
-                      (tmpname, " ".join(options["userdata"])))
-            userdata = open("/tmp/%s" % tmpname)
-            
+            tmpfile = "/tmp/%s" % uuid.uuid1()
+            content = warm.utils.multipart_content(*options["userdata"])
+            with open(tmpfile, "w+") as output:
+                output.write(content)
+            userdata = file(tmpfile)
+
         whitelist = dict(
             name=options.get("name"),
             image=image.id,
@@ -242,7 +244,6 @@ class Server(Base):
             key_name=options.get("key"),
             min_count=options.get("min_count"),
             max_count=options.get("max_count"))
-
         return self._agent.client.compute.servers.create(**whitelist)
 
     def _PostExecute(self, options):
