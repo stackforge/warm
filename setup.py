@@ -44,6 +44,7 @@ setuptools.setup(
     install_requires=[
         "requests>=1.1,<1.2.3",
         "six>=1.4.1",
+        "Babel==1.3",
         "distribute",
         "pyyaml",
         "python-openstackclient",
