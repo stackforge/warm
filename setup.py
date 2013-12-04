@@ -38,7 +38,7 @@ setuptools.setup(
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python",
         "Environment :: OpenStack",
-        ],
+    ],
     url="https://github.com/sahid/warm.git",
     packages=["warm", "warm.components"],
     install_requires=[
@@ -47,9 +47,9 @@ setuptools.setup(
         "Babel==1.3",
         "distribute",
         "pyyaml",
-        "python-openstackclient",
+        "python-openstackclient==0.2.2",
         "python-neutronclient",
-        ],
+    ],
     entry_points="""
         [console_scripts]
         warm = warm:main""",
