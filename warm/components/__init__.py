@@ -304,7 +304,9 @@ class SubNet(Base):
             name=options.get("name"), 
             cidr=options.get("cidr"), 
             ip_version=options.get("ip_version"), 
-            dns_nameservers=options.get("dns_nameservers", []))
+            dns_nameservers=options.get("dns_nameservers", []),
+            enable_dhcp=options.get("enable_dhcp", True)
+        )
         body = {"subnet": whitelist}
         #TODO(sahid): Needs to use client.
         return self._agent.clientneutron.create_subnet(body)
