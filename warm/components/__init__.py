@@ -307,6 +307,8 @@ class SubNet(Base):
             dns_nameservers=options.get("dns_nameservers", []),
             enable_dhcp=options.get("enable_dhcp", True)
         )
+        if options.get("gateway_ip"):
+            whitelist["gateway_ip"] = options.get("gateway_ip")
         body = {"subnet": whitelist}
         #TODO(sahid): Needs to use client.
         return self._agent.clientneutron.create_subnet(body)
