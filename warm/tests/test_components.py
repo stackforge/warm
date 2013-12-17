@@ -158,6 +158,16 @@ class TestComponents(testtools.TestCase):
         subnet.delete()
         net.delete()
 
+    def test_port(self):
+        cfg = {"name": rndname("net"),
+               "subnets": [
+                {"name": rndname("subnet"),
+                 "cidr": "10.123.2.0/24",
+                 "ip_version": 4},]}
+        net = components.Network(self.agent)(**cfg)
+        net.delete()
+
+
 
        
 

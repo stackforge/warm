@@ -329,6 +329,41 @@ class SubNet(Base):
         self._ref.delete()
 
 
+class Port(Base):
+    def _Execute(self, options):
+        network = Network(self._agent).find(options["network"])            
+        whitelist = dict(
+            admin_state_up=options.get("admin_state_up", True),
+            name=options.get("name"), 
+            mac_address=options.get("mac_address"),
+            fixed_ips=options.get("fixed_ips", []),
+            device=options.get("device"),  #TODO(sahid): needs mor info...
+            network=network.id
+        )
+        if "secgroup" in options:
+            whitelist["secgroup"] = SecurityGroup(self._agent).find(
+                options["secgroup"]).id
+
+        body = {"port": whitelist}
+        #TODO(sahid): Needs to use client.
+        return self._agent.clientneutron.create_port(body)
+
+    def _Id(self):
+        if isinstance(self._ref, dict):
+            return self._ref["port"]["id"]
+        return self._ref.id
+
+    def _Name(self):
+        if isinstance(self._ref, dict):
+            return self._ref["port"]["name"]
+        return self._ref.name
+
+    def _Delete(self):
+        if isinstance(self._ref, dict):
+            return self._agent.clientneutron.delete_port(self.id)
+        self._ref.delete()
+
+
 class Router(Base):
     def _Execute(self, options):
         whitelist = dict(
