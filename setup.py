@@ -1,5 +1,5 @@
-#   Copyright 2013 Cloudwatt 
-#   
+#   Copyright 2013 Cloudwatt
+#
 #   Author: Sahid Orentino Ferdjaoui <sahid.ferdjaoui@cloudwatt.com>
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
