@@ -1,5 +1,5 @@
-#   Copyright 2013 Cloudwatt 
-#   
+#   Copyright 2013 Cloudwatt
+#
 #   Author: Sahid Orentino Ferdjaoui <sahid.ferdjaoui@cloudwatt.com>
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,21 +13,20 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """The main script of the project."""
 
 import logging
 import optparse
 import os
-import yaml
 import sys
+import yaml
 
+from neutronclient.neutron import client as neutron
 from openstackclient.common import clientmanager
-from neutronclient.neutron import client as neutron #TODO(sahid): Needs to remove.
 
 from warm import components
-from warm.version import __version__
+from warm import version
 
 DEFAULT_LOGFILE = "/dev/null"
 DEFAULT_LOGLEVEL = logging.DEBUG
@@ -37,6 +36,7 @@ DEFAULT_IMAGE_API_VERSION = '2'
 DEFAULT_OBJECT_API_VERSION = '1'
 DEFAULT_VOLUME_API_VERSION = '1'
 DEFAULT_DOMAIN = 'default'
+DEFAULT_KEY_NAME = 'warmkey'
 
 OS_USERNAME = os.getenv("OS_USERNAME")
 OS_PASSWORD = os.getenv("OS_PASSWORD")
@@ -44,6 +44,7 @@ OS_TENANT_NAME = os.getenv("OS_TENANT_NAME")
 OS_AUTH_URL = os.getenv("OS_AUTH_URL")
 
 USAGE = "usage: %prog <template> [options]"
+
 
 class Agent(object):
     def __init__(self, **options):
@@ -59,9 +60,8 @@ class Agent(object):
             'object-store': self.options.get(
                 "object_api_version", DEFAULT_OBJECT_API_VERSION),
             'volume': self.options.get(
-                "volume_api_version", DEFAULT_VOLUME_API_VERSION),
-            }
-        
+                "volume_api_version", DEFAULT_VOLUME_API_VERSION)}
+
         self.client = clientmanager.ClientManager(
             token=self.options.get("token"),
             url=self.options.get("url"),
@@ -83,32 +83,31 @@ class Agent(object):
             insecure=self.options.get("insecure", True),
             api_version=self.options.get("api_version", "2.0"))
 
-        
     def _InitKeypairs(self):
         logging.info("Initializing keypairs...")
         self.key_name = self.options.get("key_name", DEFAULT_KEY_NAME)
         try:
-            self.client.compute.keypairs.delete(key_name)
-        except:
+            self.client.compute.keypairs.delete(self.key_name)
+        except Exception:
             pass
-        key = self.client.compute.keypairs.create(key_name)
+        key = self.client.compute.keypairs.create(self.key_name)
         f = open("%s.pem" % self.key_name, 'w')
         f.write(key.private_key)
         f.close
 
-def main():   
+
+def main():
     parser = optparse.OptionParser(usage=USAGE)
-    parser.add_option("-V", "--verbose", 
+    parser.add_option("-V", "--verbose",
                       dest="verbose",
                       action="store_true",
                       help="Be more verbose.",
                       default=False)
-    parser.add_option("-v", "--version", 
+    parser.add_option("-v", "--version",
                       dest="version",
                       action="store_true",
                       help="Print the current version used.",
                       default=False)
-    
     (options, args) = parser.parse_args()
 
     verbose = getattr(options, "verbose")
@@ -118,25 +117,27 @@ def main():
     logging.basicConfig(filename=out, level=DEFAULT_LOGLEVEL)
 
     if getattr(options, "version"):
-        print __version__
+        print(version.__version__)
         exit()
 
     if len(sys.argv) < 2:
         parser.print_help()
         exit()
-    
+
     stream = file(sys.argv[1])
     config = yaml.load(stream)
 
     agent = Agent(**config)
 
-    for key, cls in CLASS_MAPPING: 
+    for key, cls in CLASS_MAPPING:
         if key in config:
-            logging.debug("Some %s configurations found, work in progress..." % key)
+            logging.debug("Some %s configurations found, "
+                          "work in progress..." % key)
             for cfg in config[key]:
                 getattr(components, cls)(agent)(**cfg)
 
-CLASS_MAPPING=[
+
+CLASS_MAPPING = [
     ("key", "Key"),
     ("volume", "Volume"),
     ("network", "Network"),

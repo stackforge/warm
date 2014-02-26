@@ -1,5 +1,5 @@
-#   Copyright 2013 Cloudwatt 
-#   
+#   Copyright 2013 Cloudwatt
+#
 #   Author: Sahid Orentino Ferdjaoui <sahid.ferdjaoui@cloudwatt.com>
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,18 +13,18 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-"""Components."""
+"""Tests."""
 
-import os
 import uuid
-import warm.utils
 
+from neutronclient.common import exceptions as neutron_exc
 from neutronclient.neutron import v2_0 as neutronV20
-from neutronclient.common.exceptions import NeutronClientException
-from openstackclient.common import utils, exceptions
-from novaclient.exceptions import BadRequest, OverLimit
+from novaclient import exceptions as nova_exc
+from openstackclient.common import exceptions
+from openstackclient.common import utils
+
+import warm.utils
 
 
 class Base(object):
@@ -32,7 +32,7 @@ class Base(object):
     def __init__(self, agent, ref=None):
         self._agent = agent
         self._ref = ref
-    
+
     def find(self, id_or_name, ref_only=False):
         service = None
         ref = None
@@ -58,7 +58,7 @@ class Base(object):
             rid = neutronV20.find_resourceid_by_name_or_id(
                 self._agent.clientneutron, "router", id_or_name)
             ref = self._agent.clientneutron.show_router(rid)
-            
+
         if service:
             ref = utils.find_resource(service, id_or_name)
         if ref_only:
@@ -76,9 +76,9 @@ class Base(object):
         elif isinstance(self, Volume):
             service = self._agent.client.volume.volumes
 
-        utils.wait_for_status(service.get, 
-                              self.id, 
-                              sleep_time=1, 
+        utils.wait_for_status(service.get,
+                              self.id,
+                              sleep_time=1,
                               success_status=success,
                               status_field=field)
 
@@ -87,13 +87,12 @@ class Base(object):
             raise Exception("This component is not initialize yet.")
         return self._Delete()
 
-        
     def _Execute(self, options):
         raise NotImplemented("This method needs to be implemented.")
 
     def _Delete(self):
         return self._ref.delete()
-    
+
     def _PostExecute(self, options):
         pass
 
@@ -107,14 +106,14 @@ class Base(object):
         try:
             if options.get("name"):
                 self._ref = self.find(options.get("name"), ref_only=True)
-        except (exceptions.CommandError, NeutronClientException):
+        except (exceptions.CommandError, neutron_exc.NeutronClientException):
             pass
         finally:
             if not self._ref:
                 self._ref = self._Execute(options)
         self._PostExecute(options)
         return self
-    
+
     @property
     def id(self):
         if not self._ref:
@@ -126,6 +125,7 @@ class Base(object):
         if not self._ref:
             raise Exception("This component is not initialize yet.")
         return self._Name()
+
 
 class Key(Base):
     """Handles keypairs operations."""
@@ -141,6 +141,7 @@ class Key(Base):
             f.write(key.private_key)
             f.close
         return key
+
 
 class Image(Base):
     """Handles image operations."""
@@ -163,6 +164,7 @@ class Volume(Base):
     def _Name(self):
         return self._ref.display_name
 
+
 class SecurityGroup(Base):
     def _Execute(self, options):
         """Handles security groups operations."""
@@ -170,7 +172,7 @@ class SecurityGroup(Base):
             name=options["name"],
             description=options.get("description", "<empty>"))
         return self._agent.client.compute.security_groups.create(**whitelist)
-    
+
     def _PostExecute(self, options):
         if "rules" in options:
             for rule_opt in options["rules"]:
@@ -179,30 +181,30 @@ class SecurityGroup(Base):
     def Rule(self, **options):
         options["group"] = self.id
         SecurityGroupRule(self._agent)(**options)
-        
+
 
 class SecurityGroupRule(Base):
     def _Execute(self, options):
         parent = SecurityGroup(self._agent).find(options["group"])
-        group_id=None
+        group_id = None
         if "secgroup" in options:
             group = SecurityGroup(self._agent).find(options["secgroup"])
             if group:
                 group_id = group.id
         whitelist = dict(
             parent_group_id=parent.id,
-            ip_protocol=options.get("ip_protocol"), 
-            from_port=options.get("from_port"), 
-            to_port=options.get("to_port"), 
+            ip_protocol=options.get("ip_protocol"),
+            from_port=options.get("from_port"),
+            to_port=options.get("to_port"),
             cidr=options.get("cidr"),
             group_id=group_id)
         try:
-            return self._agent.client.compute.security_group_rules.create(**whitelist)
-        except (BadRequest, OverLimit):
+            return self._agent.client.compute.security_group_rules.create(
+                **whitelist)
+        except (nova_exc.BadRequest, nova_exc.OverLimit):
             # BUG(sahid): How to find a rule?,
             # if the rule already exists, exception OverLimit...
-            pass 
-
+            pass
 
 
 class Server(Base):
@@ -211,7 +213,7 @@ class Server(Base):
         image = Image(self._agent).find(options.get("image"))
         flavor = Flavor(self._agent).find(options.get("flavor"))
 
-        secgrps = [] # TODO(sahid): utiliser un map?
+        secgrps = []
         for name in options.get("securitygroups", []):
             secgrp = SecurityGroup(self._agent).find(name)
             secgrps.append(secgrp.id)
@@ -220,10 +222,9 @@ class Server(Base):
         for obj in options.get("networks", []):
             net = Network(self._agent).find(obj["name"])
             networks.append({
-                    "net-id": net.id,
-                    "v4-fixed-ip": obj.get("fixed_ip"),
-                    "port-id": obj.get("port"),
-                    })
+                "net-id": net.id,
+                "v4-fixed-ip": obj.get("fixed_ip"),
+                "port-id": obj.get("port")})
 
         userdata = None
         if "userdata" in options:
@@ -251,7 +252,7 @@ class Server(Base):
             self.wait_for_ready()
             for volume_opt in options["volumes"]:
                 self.Mount(**volume_opt)
-                
+
     def Mount(self, **options):
         volume = Volume(self._agent).find(options["name"])
         volume.wait_for_ready()
@@ -261,12 +262,12 @@ class Server(Base):
             device=options["device"])
         self._agent.client.compute.volumes.create_server_volume(**whitelist)
 
+
 class Network(Base):
     def _Execute(self, options):
         whitelist = dict(
-            name=options["name"], 
-            admin_state_up=options.get("admin_state_up", True),
-            )
+            name=options["name"],
+            admin_state_up=options.get("admin_state_up", True))
         body = {"network": whitelist}
         #TODO(sahid): Needs to use client.
         return self._agent.clientneutron.create_network(body)
@@ -301,12 +302,12 @@ class SubNet(Base):
         network = Network(self._agent).find(options["network"])
         whitelist = dict(
             network_id=network.id,
-            name=options.get("name"), 
-            cidr=options.get("cidr"), 
-            ip_version=options.get("ip_version"), 
+            name=options.get("name"),
+            cidr=options.get("cidr"),
+            ip_version=options.get("ip_version"),
             dns_nameservers=options.get("dns_nameservers", []),
-            enable_dhcp=options.get("enable_dhcp", True)
-        )
+            enable_dhcp=options.get("enable_dhcp", True))
+
         if options.get("gateway_ip"):
             whitelist["gateway_ip"] = options.get("gateway_ip")
         body = {"subnet": whitelist}
@@ -364,12 +365,13 @@ class Router(Base):
 
     def _Delete(self):
         if isinstance(self._ref, dict):
-            for name, interfaces in self._agent.clientneutron.list_ports().items():
+            items = self._agent.clientneutron.list_ports().items()
+            for name, interfaces in items:
                 for interface in interfaces:
                     if interface["device_id"] == self.id:
                         RouterInterface(self._agent, interface).delete()
             return self._agent.clientneutron.delete_router(self.id)
-        
+
         self._ref.delete()
 
 
@@ -378,14 +380,13 @@ class RouterInterface(Base):
         router = Router(self._agent).find(options["router"])
         subnet = SubNet(self._agent).find(options["subnet"])
         whitelist = dict(
-            name = options.get("name"),
-            subnet_id=subnet.id,
-            )
+            name=options.get("name"),
+            subnet_id=subnet.id)
         try:
             return self._agent.clientneutron.add_interface_router(
                 router.id, whitelist)
-        except NeutronClientException:
-            pass # BUG(sahid): Needs to know how to get an interface.
+        except neutron_exc.NeutronClientException:
+            pass  # BUG(sahid): Needs to know how to get an interface.
 
     def _Id(self):
         if isinstance(self._ref, dict):
@@ -400,8 +401,8 @@ class RouterInterface(Base):
     def _Delete(self):
         if isinstance(self._ref, dict):
             return self._agent.clientneutron.remove_interface_router(
-                self._ref["device_id"], 
-                {"subnet_id":self._ref["fixed_ips"][0]['subnet_id']})
+                self._ref["device_id"],
+                {"subnet_id": self._ref["fixed_ips"][0]['subnet_id']})
         self._ref.delete()
 
 
@@ -410,15 +411,14 @@ class RouterGateway(Base):
         router = Router(self._agent).find(options["router"])
         network = Network(self._agent).find(options["network"])
         whitelist = dict(
-            name = options.get("name"),
-            network_id=network.id,
-            )
+            name=options.get("name"),
+            network_id=network.id)
+
         try:
             return self._agent.clientneutron.add_gateway_router(
                 router.id, whitelist)
-        except NeutronClientException:
-            pass # BUG(sahid): Needs to know how to get an interface.
-
+        except neutron_exc.NeutronClientException:
+            pass  # BUG(sahid): Needs to know how to get an interface.
 
     def _Id(self):
         if isinstance(self._ref, dict):
@@ -433,9 +433,6 @@ class RouterGateway(Base):
     def _Delete(self):
         if isinstance(self._ref, dict):
             return self._agent.clientneutron.remove_gateway_router(
-                self._ref["device_id"], 
-                {"network_id":self._ref["fixed_ips"][0]['subnet_id']})
+                self._ref["device_id"],
+                {"network_id": self._ref["fixed_ips"][0]['subnet_id']})
         self._ref.delete()
-
-
-
