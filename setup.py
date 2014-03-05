@@ -15,42 +15,8 @@
 #   under the License.
 #
 
-import os
 import setuptools
 
-execfile("warm/version.py")
-
 setuptools.setup(
-    name="warm",
-    version=__version__,
-    author="Sahid Orentino Ferdjaoui (Cloudwatt)",
-    author_email="sahid.ferdjaoui@cloudwatt.com",
-    description="Deploy a simple OpenStack environment from template",
-    long_description=(open(os.path.join(os.getcwd(), "README")).read()),
-    license="Apache License 2.0",
-    keywords=["openstack", "cloudwatt", "deploy", "cloud"],
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache Software License",
-        "Natural Language :: English",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python",
-        "Environment :: OpenStack",
-    ],
-    url="https://github.com/sahid/warm.git",
-    packages=["warm", "warm.components"],
-    install_requires=[
-        "requests>=1.1,<1.2.3",
-        "six>=1.4.1",
-        "Babel==1.3",
-        "distribute",
-        "pyyaml",
-        "python-openstackclient==0.2.2",
-        "python-neutronclient",
-    ],
-    entry_points="""
-        [console_scripts]
-        warm = warm:main""",
-    )
+    setup_requires=['pbr'],
+    pbr=True)
