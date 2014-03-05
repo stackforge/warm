@@ -1,0 +1,59 @@
+CHANGES
+=======
+
+* Update the project to refer openstack projects
+* Fix gateway_ip for a subnet
+* Fix dhcp options in a netwok
+* Fix deps
+* Fix dep version with Babel
+* Removes the dep with write-multipart
+* Fix bug with secgroups rules
+* Fix bug version
+* Update the reamde to add note
+* Review of the README
+* Review of the readme
+* Fix bug with version and deps
+* Review of the readme
+* Fix regression
+* Proposal a solution to catch secs rule already existing bug need better
+* Fix temporal bug with router to find interface/gateway
+* Adds supports to not recreate already existed resource
+* Nothing special, just update the version for pypi
+* Adds version to the package
+* Fix bug when the key already exists
+* Nothing imortant
+* misspelling
+* Adds more info to the readme
+* Fix deps
+* Adds url of the source project
+* Finds a betterr solution to handle keypari
+* Fix bug, Erase same keyname
+* Updates version
+* Adds zone
+* I just forgot to incr version for pyton package
+* Improves readem
+* Not necessary to wati
+* Configures packages
+* Adds min and max count for start server
+* Fix components
+* Provides user data
+* Fix orchestration
+* Adds support of userdata
+* Provides support to add network to an instance
+* Improves readme
+* Fix usage message
+* Adds dependance
+* Provides verbose mode
+* Fix bug packages
+* Creates a package
+* Rm unecessary file
+* Adds license and version
+* Enable new compoenents
+* Full review + more documented
+* Adds new resources (network, subnet, router...)
+* Adds rule to .gitignore
+* Adds tests
+* Adds a new method to delete resource
+* Uses now env values to identify
+* Fix a bug wih wait_for_instance
+* First commit to keep trace of this project
