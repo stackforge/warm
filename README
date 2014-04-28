@@ -15,7 +15,7 @@ How to use it:
   - To install Warm use pip (don't forget to check for dependances).
 $ pip install warm
   
-  - We are considering your env OS_* are already configured.
+  - We are assuming your env OS_* are already configured.
 $ export | grep OS_
 declare -x OS_AUTH_URL="https://identity/v2.0"
 declare -x OS_PASSWORD="*******"
@@ -23,7 +23,7 @@ declare -x OS_TENANT_ID="ea262aa012f244f8af2d1687977aaa81"
 declare -x OS_TENANT_NAME="my-project"
 declare -x OS_USERNAME="sferdjaoui"
 
-  - We are now ready to create our first template.
+  - Your are now ready to create your first template.
 $ cat > my-tpl.yaml <<EOF
 server:
 - name: srv
@@ -31,7 +31,7 @@ server:
   image: cirros-0.3.1-x86_64-uec
 EOF
 
-- We can now run warm.
+  - You can now run warm.
 $ warm my-tpl.yaml
 
 To get more information about a template syntax, see config.yaml.sample or
