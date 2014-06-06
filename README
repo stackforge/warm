@@ -9,8 +9,9 @@ Please report me any bug or feature. I will be happy to work on it.
 Note: Warm mixup names and ids, It does not recreate resource 
 already exists with a same name/id.
 
-How to use it:
-==============
+
+How to use it
+=============
 
   - To install Warm use pip (don't forget to check for dependances).
 $ pip install warm
@@ -38,15 +39,26 @@ To get more information about a template syntax, see config.yaml.sample or
 you can check the repositoy https://github.com/sahid/warm-templates to find
 more examples.
 
-Notes:
-======
-  You may need to install packages:
-    build-essential
-    python-dev
-    python-pip
-    libssl-dev
 
-Roadmap:
-========
+Build Prerequisites
+===================
+
+debian-based
+------------
+
+The list of debian package dependencies can be found in deps.deb.txt:
+
+   $ sudo apt-get install `cat deps.deb.txt`
+
+rpm-based
+---------
+
+The list of RPM package dependencies can be found in deps.rpm.txt:
+
+   $ sudo yum install `cat deps.rpm.txt`
+
+
+Roadmap
+=======
 Add floating-ip
 pylint, pep8
