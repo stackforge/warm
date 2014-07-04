@@ -88,7 +88,7 @@ class Base(object):
         return self._Delete()
 
     def _Execute(self, options):
-        raise NotImplemented("This method needs to be implemented.")
+        raise NotImplementedError("This method needs to be implemented.")
 
     def _Delete(self):
         return self._ref.delete()
