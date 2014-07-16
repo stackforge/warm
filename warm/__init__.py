@@ -20,10 +20,10 @@ import logging
 import optparse
 import os
 import sys
-import yaml
 
 from neutronclient.neutron import client as neutron
 from openstackclient.common import clientmanager
+import yaml
 
 from warm import components
 from warm import version
