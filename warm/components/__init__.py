@@ -293,7 +293,7 @@ class Network(Base):
             name=options["name"],
             admin_state_up=options.get("admin_state_up", True))
         body = {"network": whitelist}
-        #TODO(sahid): Needs to use client.
+        # TODO(sahid): Needs to use client.
         return self._agent.clientneutron.create_network(body)
 
     def _PostExecute(self, options):
@@ -343,7 +343,7 @@ class SubNet(Base):
         if options.get("gateway_ip"):
             whitelist["gateway_ip"] = options.get("gateway_ip")
         body = {"subnet": whitelist}
-        #TODO(sahid): Needs to use client.
+        # TODO(sahid): Needs to use client.
         return self._agent.clientneutron.create_subnet(body)
 
     def _Id(self):

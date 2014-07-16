@@ -16,10 +16,9 @@
 
 """Some utilities script to be used with warm."""
 
-import os
-
 from email.mime import multipart
 from email.mime import text
+import os
 
 
 MULTIPART_MAPPINGS = {
@@ -45,8 +44,8 @@ def get_type(fname, deftype="text/plain"):
 
 def multipart_content(*files):
     """Returns a mutlipart content.
-    Note:
-      This script was clearly inspired by write-mime-multipart.
+
+    Note: This script was clearly inspired by write-mime-multipart.
     """
     outer = multipart.MIMEMultipart()
     for fname in files:
