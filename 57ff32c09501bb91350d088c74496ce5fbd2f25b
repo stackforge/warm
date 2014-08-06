@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Code-Review+2: sahid <sahid.ferdjaoui@gmail.com>
+Workflow+1: sahid <sahid.ferdjaoui@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Wed, 06 Aug 2014 15:38:57 +0000
+Reviewed-on: https://review.openstack.org/112315
+Project: stackforge/warm
+Branch: refs/heads/master
