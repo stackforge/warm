@@ -64,12 +64,20 @@
 #  subnets:
 #    - cidr: 10.123.2.0/24
 #      ip_version: 4
+#      host_routes:
+#        - destination: 0.0.0.0/0
+#          nexthop: 10.123.2.1
+#        - destination: 10.0.0.0/24
+#          nexthop: 10.123.2.2
 #
 #subnet:
 #- network: net01
 #  name: sub01
 #  cidr: 10.123.2.0/24
 #  ip_version: 4
+#  host_routes:
+#    - destination: 10.0.0.0/24
+#      nexthop: 10.123.2.2
 
 ###############################################################################
 # Router

@@ -299,6 +299,13 @@ class Network(Base):
 
 class SubNet(Base):
     def _Execute(self, options):
+        host_routes = []
+        for obj in options.get("host_routes", []):
+            host_routes.append({
+                    "destination": obj.get("destination"),
+                    "nexthop": obj.get("nexthop"),
+                    })
+
         network = Network(self._agent).find(options["network"])
         whitelist = dict(
             network_id=network.id,
@@ -306,7 +313,8 @@ class SubNet(Base):
             cidr=options.get("cidr"),
             ip_version=options.get("ip_version"),
             dns_nameservers=options.get("dns_nameservers", []),
-            enable_dhcp=options.get("enable_dhcp", True))
+            enable_dhcp=options.get("enable_dhcp", True),
+            host_routes=host_routes)
 
         if options.get("gateway_ip"):
             whitelist["gateway_ip"] = options.get("gateway_ip")
