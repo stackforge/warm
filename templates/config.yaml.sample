@@ -54,6 +54,11 @@
 #  volumes:
 #    - name: vol01
 #      device: /dev/sdh
+#  networks:
+#    - name: net01
+#      v4-fixed-ip: 10.123.2.25
+#    - name: net01
+#      v6-fixed-ip: dead:beef::25/64
 #  securitygroups: [demo, ]
 
 ###############################################################################
@@ -78,6 +83,10 @@
 #  host_routes:
 #    - destination: 10.0.0.0/24
 #      nexthop: 10.123.2.2
+#- network: net01
+#  name: sub02
+#  cidr: dead:beef::/64
+#  ip_version: 6
 
 ###############################################################################
 # Router

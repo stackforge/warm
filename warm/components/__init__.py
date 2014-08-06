@@ -18,6 +18,8 @@
 
 import uuid
 
+from netaddr import AddrFormatError
+from netaddr import IPAddress
 from neutronclient.common import exceptions as neutron_exc
 from neutronclient.neutron import v2_0 as neutronV20
 from novaclient import exceptions as nova_exc
@@ -221,10 +223,32 @@ class Server(Base):
         networks = []
         for obj in options.get("networks", []):
             net = Network(self._agent).find(obj["name"])
+            ipv4_addr = None
+            ipv6_addr = None
+            if obj.get("fixed_ip"):
+                # Note(ethuleau): keep 'fixed_ip' attribute for compatibility
+                try:
+                    ip_addr = IPAddress(obj.get("fixed_ip"))
+                except AddrFormatError:
+                    raise Exception("Invalid IP address: %s",
+                                    obj.get("fixed_ip"))
+                if ip_addr.version == 4:
+                    ipv4_addr = str(ip_addr)
+                else:
+                    ipv6_addr = str(ip_addr)
+            if obj.get("v4-fixed-ip"):
+                ipv4_addr = obj.get("v4-fixed-ip")
+            if obj.get("v6-fixed-ip"):
+                ipv6_addr = obj.get("v6-fixed-ip")
+            # Note(ethuleau): keep 'port' attribute for compatibility
+            port_id = obj.get("port")
+            if obj.get("port-id"):
+                port_id = obj.get("port-id")
             networks.append({
                 "net-id": net.id,
-                "v4-fixed-ip": obj.get("fixed_ip"),
-                "port-id": obj.get("port")})
+                "v4-fixed-ip": ipv4_addr,
+                "v6-fixed-ip": ipv6_addr,
+                "port-id": port_id})
 
         userdata = None
         if "userdata" in options:
