@@ -223,8 +223,9 @@ class Server(Base):
             net = Network(self._agent).find(obj["name"])
             networks.append({
                 "net-id": net.id,
-                "v4-fixed-ip": obj.get("fixed_ip"),
-                "port-id": obj.get("port")})
+                "v4-fixed-ip": obj.get("v4-fixed-ip"),
+                "v6-fixed-ip": obj.get("v6-fixed-ip"),
+                "port-id": obj.get("port-id")})
 
         userdata = None
         if "userdata" in options:
